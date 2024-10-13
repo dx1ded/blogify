@@ -21,6 +21,7 @@ export default function Home() {
                     alt="post_name"
                     width={500}
                     height={500}
+                    priority
                   />
                 </div>
                 <div className="relative z-50 flex h-full flex-col items-start justify-end p-5 lg:p-7">
@@ -41,6 +42,7 @@ export default function Home() {
                     alt="post_name"
                     width={500}
                     height={500}
+                    priority
                   />
                 </div>
                 <div className="relative z-50 flex h-full flex-col items-start justify-end p-5 lg:p-7">
@@ -61,6 +63,7 @@ export default function Home() {
                     alt="post_name"
                     width={500}
                     height={500}
+                    priority
                   />
                 </div>
                 <div className="relative z-50 flex h-full flex-col items-start justify-end p-5 lg:p-7">

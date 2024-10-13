@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { Work_Sans as WorkSans, Source_Serif_4 as SourceSerif4, Inter } from "next/font/google"
 import SessionProvider from "~/providers/SessionProvider"
 import { cn } from "~/shared/lib"
+import { Toaster } from "~/shared/ui-kit/sonner"
 import "~/styles/globals.css"
 
 export const metadata: Metadata = {
@@ -25,6 +26,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={cn("antialiased", workSans.variable, sourceSerif4.variable, inter.variable)}>
         <SessionProvider>{children}</SessionProvider>
+        <Toaster />
       </body>
     </html>
   )

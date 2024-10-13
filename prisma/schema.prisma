@@ -14,11 +14,32 @@ datasource db {
 }
 
 model User {
-  id        String  @id @default(uuid())
-  email     String  @unique
-  username  String  @unique
-  firstName String
-  lastName  String
-  imageUrl  String
-  password  String?
+  id            String    @id @default(cuid())
+  name          String?   @default("Anonymous")
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?   @default("https://img.freepik.com/premium-vector/people-profile-graphic_24911-21373.jpg")
+  password      String? // Field for credentials provider
+  createdAt     DateTime  @default(now())
+
+  accounts Account[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }

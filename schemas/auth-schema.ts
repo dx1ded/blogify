@@ -1,11 +1,11 @@
 import { z } from "zod"
 
 export const loginSchema = z.object({
-  email: z.string().trim().email("E-mail is required"),
-  password: z.string().trim().min(4, "Password is required"),
+  email: z.string().email("E-mail is required"),
+  password: z.string().min(4, "Password is required"),
 })
 
-export const signupSchema = z
+export const registerSchema = z
   .object({
     email: z.string().email("E-mail is required"),
     first: z.string().min(1, "First name is required"),
