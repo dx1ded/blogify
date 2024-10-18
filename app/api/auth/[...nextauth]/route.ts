@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt"
-import NextAuth from "next-auth"
+import NextAuth, { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import GoogleProvider from "next-auth/providers/google"
 import FacebookProvider from "next-auth/providers/facebook"
@@ -7,7 +7,7 @@ import GithubProvider from "next-auth/providers/github"
 import CredentialsProvider from "next-auth/providers/credentials"
 import prisma from "~/prisma"
 
-const handler = NextAuth({
+export const authOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     GoogleProvider({
@@ -29,7 +29,6 @@ const handler = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log(credentials)
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Please enter an email and password")
         }
@@ -56,23 +55,23 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async session({ token, user, session }) {
-      session.user.id = user?.id
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id
+      }
+
+      return token
+    },
+    async session({ token, session }) {
+      if (token.id) {
+        session.user.id = token.id as string
+      }
       session.user.name = token?.name ?? ""
       session.user.image = token?.picture ?? ""
 
       return session
     },
-    async signIn({ user, account }) {
-      // If provider is credentials but user doesn't exist we return `false`
-      if (account?.provider === "credentials" && user.email) {
-        const userExists = await prisma.user.findUnique({
-          where: { email: user.email },
-        })
-
-        if (!userExists) return false
-      }
-
+    async signIn({ user }) {
       // If user.email doesn't exist we return `false` regardless the provider
       return Boolean(user.email)
     },
@@ -84,6 +83,8 @@ const handler = NextAuth({
     strategy: "jwt",
   },
   debug: process.env.NODE_ENV === "development",
-})
+} satisfies NextAuthOptions
+
+const handler = NextAuth(authOptions)
 
 export { handler as GET, handler as POST }

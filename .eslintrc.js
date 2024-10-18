@@ -2,13 +2,12 @@
 module.exports = {
   root: true,
   extends: [
-    "next/core-web-vitals",
-    "next/typescript",
     "plugin:prettier/recommended",
     require.resolve("@vercel/style-guide/eslint/browser"),
     require.resolve("@vercel/style-guide/eslint/react"),
     require.resolve("@vercel/style-guide/eslint/next"),
-    require.resolve("@vercel/style-guide/eslint/typescript"),
+    "next/core-web-vitals",
+    "next/typescript",
   ],
   rules: {
     "import/no-default-export": "off",
@@ -18,6 +17,9 @@ module.exports = {
     "unicorn/filename-case": "off",
     "eslint-comments/require-description": "off",
     "no-console": "off",
+    "no-nested-ternary": "off",
+    "react/hook-use-state": "off",
+    "react/no-array-index-key": "off",
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
@@ -28,15 +30,10 @@ module.exports = {
     "@typescript-eslint/require-await": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-misused-promises": "off",
-  },
-  parserOptions: {
-    project: "./tsconfig.json",
-  },
-  settings: {
-    "import/resolver": {
-      typescript: {
-        project: "./tsconfig.json",
-      },
-    },
+    "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unsafe-argument": "off",
+    "@typescript-eslint/restrict-template-expressions": "off",
+    "@typescript-eslint/no-floating-promises": "off",
+    "@typescript-eslint/ban-ts-comment": "off",
   },
 }
