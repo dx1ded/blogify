@@ -5,15 +5,16 @@ import { toast } from "sonner"
 import { cn, fileToDataURL, mb } from "~/shared/lib"
 import { H4 } from "~/shared/ui/Typography"
 
-interface ThumbnailPickerProps extends Omit<React.ComponentPropsWithoutRef<"input">, "onChange"> {
+interface ThumbnailPickerProps extends Omit<React.ComponentPropsWithoutRef<"input">, "onChange" | "defaultValue"> {
+  defaultValue?: string
   onChange(file: File): void
 }
 
 export const ThumbnailPicker = forwardRef<HTMLInputElement, ThumbnailPickerProps>(function ThumbnailPicker(
-  { className, onChange, ...props },
+  { className, defaultValue, onChange, ...props },
   ref,
 ) {
-  const [dataUrl, setDataUrl] = useState<string | null>(null)
+  const [dataUrl, setDataUrl] = useState<string | null>(defaultValue || null)
 
   const changeHandler = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files

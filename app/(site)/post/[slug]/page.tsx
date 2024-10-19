@@ -4,8 +4,6 @@ import type { Post as IPost } from "~/shared/lib"
 import { PostInitializer, Post } from "~/shared/ui/Post"
 
 export default async function Page({ params }: { params: { slug: string } }) {
-  if (!params?.slug) return <p>Not found</p>
-
   const post = await prisma.post.findFirst({
     where: {
       slug: params.slug,

@@ -1,30 +1,112 @@
+"use client"
+
+import { EllipsisVerticalIcon } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
+import { removePost } from "~/server-actions/post"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/shared/ui-kit/alert-dialog"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/shared/ui-kit/dropdown-menu"
 import { Author } from "~/shared/ui/Author"
 import { Tag } from "~/shared/ui/Tag"
 import { H4 } from "~/shared/ui/Typography"
 import { normalizeTimestamp } from "~/shared/lib"
 
 interface PostCardProps {
+  id: string
+  slug: string
   title: string
   tag: string
   thumbnailUrl: string
-  date: number
+  createdAt: Date
   author: {
     name: string
-    imageUrl: string
+    image: string
   }
+  withControls?: boolean
 }
 
-export function PostCard({ title, tag, thumbnailUrl, date, author }: PostCardProps) {
+export function PostCard({
+  id,
+  slug,
+  title,
+  tag,
+  thumbnailUrl,
+  createdAt,
+  author,
+  withControls = false,
+}: PostCardProps) {
+  const router = useRouter()
+
+  const remove = async () => {
+    try {
+      await removePost(id)
+      toast.success("Post has been successfully removed", { position: "top-right" })
+    } catch (e) {
+      toast.error((e as Error).message, { position: "top-right" })
+    }
+  }
+
   return (
-    <div className="rounded-lg border border-[#E8E8EA] p-3.5 shadow">
-      <Image src={thumbnailUrl} className="mb-4 w-full rounded-lg object-cover" alt={title} width={200} height={200} />
-      <Tag name={tag} variant="secondary" className="mb-2 inline-block rounded-lg" />
-      <H4 className="mb-5 line-clamp-2">{title}</H4>
-      <div className="flex items-center justify-between gap-2">
-        <Author name={author.name} imageUrl={author.imageUrl} nameVariant="dark" />
-        <p className="text-nowrap font-sans text-grayish">{normalizeTimestamp(date)}</p>
+    <Link className="min-w-0 rounded-lg border border-[#E8E8EA] p-3.5 shadow" href={`/post/${slug}`}>
+      <Image
+        src={thumbnailUrl}
+        className="mb-4 h-[12rem] w-full rounded-lg object-cover"
+        alt={title}
+        width={200}
+        height={200}
+      />
+      <div className="mb-2 flex items-center justify-between">
+        <Tag name={tag} variant="secondary" className="inline-block rounded-lg" />
+        {withControls ? (
+          <AlertDialog>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button type="button" className="flex h-4 w-4 items-center justify-center text-grayish">
+                  <EllipsisVerticalIcon className="h-full w-full" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
+                <DropdownMenuItem className="font-medium" onClick={() => router.push(`/post/edit/${id}`)}>
+                  Edit
+                </DropdownMenuItem>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem className="font-medium text-red-500 focus:text-red-500">Delete</DropdownMenuItem>
+                </AlertDialogTrigger>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete your post and remove its data from our
+                  servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={remove}>Delete</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        ) : null}
       </div>
-    </div>
+      <H4 className="mb-5 truncate">{title}</H4>
+      <div className="flex items-center justify-between gap-2">
+        <Author name={author.name} imageUrl={author.image} nameVariant="dark" />
+        <p className="text-nowrap font-sans text-grayish">{normalizeTimestamp(createdAt)}</p>
+      </div>
+    </Link>
   )
 }

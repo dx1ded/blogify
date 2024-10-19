@@ -8,7 +8,7 @@ import { H1 } from "~/shared/ui/Typography"
 
 export default function Home() {
   return (
-    <main className="py-8">
+    <div>
       <section className="mb-10 w-full lg:mb-12">
         <Carousel className="w-full" opts={{ loop: true, duration: 20 }}>
           <CarouselContent className="h-[20rem] lg:h-[28rem]">
@@ -133,6 +133,6 @@ export default function Home() {
           />
         </div>
       </section>
-    </main>
+    </div>
   )
 }

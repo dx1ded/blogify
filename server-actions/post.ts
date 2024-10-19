@@ -47,6 +47,7 @@ export async function createPost(formData: FormData) {
     },
   })
 
+  revalidatePath("/profile")
   redirect(`/post/${post.slug}`)
 }
 
@@ -90,5 +91,82 @@ export async function togglePostLike(postId: string) {
     })
   }
 
-  revalidatePath(`/blog/${post.slug}`)
+  revalidatePath(`/post/${post.slug}`)
+}
+
+export async function editPost(formData: FormData, postId: string) {
+  const data = Object.fromEntries(formData.entries()) as unknown as z.output<typeof postSchema>
+  const session = await getServerSession(authOptions)
+
+  // If tags are `string` as it was stringified before sending formData, we normalize it back
+  const tags = formData.get("tags")
+
+  if (typeof tags === "string") {
+    data.tags = tags.split(",")
+  }
+
+  const validation = postSchema.safeParse(data)
+
+  if (!validation.success || !session?.user.id || !postId) {
+    throw new Error("Provided data is invalid")
+  }
+
+  const post = await prisma.post.findFirst({
+    where: { id: postId },
+  })
+
+  if (!post) {
+    throw new Error("Post not found")
+  }
+
+  if (post.authorId !== session.user.id) {
+    throw new Error("Not allowed")
+  }
+
+  const { thumbnail, ...postData } = data
+
+  if (thumbnail.size > mb(2)) throw new Error("File cannot be larger than 2 MB")
+
+  const id = nanoid()
+  const blob = await put(`${id}_thumbnail`, thumbnail, {
+    access: "public",
+  })
+
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      ...postData,
+      thumbnailUrl: blob.downloadUrl,
+    },
+  })
+
+  revalidatePath(`/post/${post.slug}`)
+  revalidatePath(`/post/edit/${post.id}`)
+  revalidatePath("/profile")
+}
+
+export async function removePost(postId: string) {
+  const session = await getServerSession(authOptions)
+
+  if (!postId || !session?.user.id) {
+    throw new Error("Provided data is not valid")
+  }
+
+  const post = await prisma.post.findFirst({
+    where: { id: postId },
+  })
+
+  if (!post) {
+    throw new Error("Post not found")
+  }
+
+  if (post.authorId !== session.user.id) {
+    throw new Error("Not allowed")
+  }
+
+  await prisma.post.delete({
+    where: { id: postId },
+  })
+
+  revalidatePath("/profile")
 }

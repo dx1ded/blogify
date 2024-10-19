@@ -1,10 +1,10 @@
-import { clsx, type ClassValue } from "clsx"
+import { type ClassValue, clsx } from "clsx"
 import dayjs from "dayjs"
-import { twMerge } from "tailwind-merge"
-import relativeTime from "dayjs/plugin/relativeTime"
 import isToday from "dayjs/plugin/isToday"
 import isYesterday from "dayjs/plugin/isYesterday"
 import localizedFormat from "dayjs/plugin/localizedFormat"
+import relativeTime from "dayjs/plugin/relativeTime"
+import { twMerge } from "tailwind-merge"
 
 // Add the plugins you need
 dayjs.extend(relativeTime)
@@ -16,8 +16,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export const normalizeTimestamp = (timestamp: number) => {
-  return dayjs(timestamp).format("MMMM D, YYYY")
+export const normalizeTimestamp = (date: Date) => {
+  return dayjs(date).format("MMMM D, YYYY")
 }
 
 export const normalizeCommentDate = (date: Date) => {
@@ -62,4 +62,15 @@ export function fileToDataURL(file: File): Promise<string> {
     // Initiates reading the file as a Data URL
     reader.readAsDataURL(file)
   })
+}
+
+export async function urlToFile(url: string) {
+  // Fetch the image data from the URL
+  const response = await fetch(url)
+
+  // Convert the response to a Blob
+  const blob = await response.blob()
+
+  // Create a File object from the Blob with mimeType set to 'image/png'
+  return new File([blob], "file.png", { type: "image/png" })
 }

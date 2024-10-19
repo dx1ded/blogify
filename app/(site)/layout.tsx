@@ -5,7 +5,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <Container>
       <Header />
-      {children}
+      <main className="py-10">{children}</main>
     </Container>
   )
 }
