@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useCurrentEditor } from "@tiptap/react"
 import { LinkIcon } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
@@ -15,6 +14,7 @@ import {
 } from "~/shared/ui-kit/dialog"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/shared/ui-kit/form"
 import { Input } from "~/shared/ui-kit/input"
+import { useEditorContext } from "~/shared/ui/Editor"
 import { ToolbarButton } from "./ToolbarButton"
 
 const linkSchema = z.object({
@@ -22,7 +22,7 @@ const linkSchema = z.object({
 })
 
 export function LinkButton() {
-  const { editor } = useCurrentEditor()
+  const editor = useEditorContext()
   const [open, setIsOpen] = useState(false)
   const form = useForm<z.output<typeof linkSchema>>({
     resolver: zodResolver(linkSchema),

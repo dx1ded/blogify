@@ -1,3 +1,5 @@
+import type { Comment as IComment } from "@prisma/client"
+
 export type WithAsChild<T> = { asChild?: boolean } & T
 
 export type NonNullableObject<T> = {
@@ -12,20 +14,20 @@ export interface User {
 
 export interface Post {
   id: string
+  slug: string
   title: string
   content: string
   tags: string[]
   thumbnailUrl: string
+  createdAt: Date
   author: User
   likedBy: string[]
   comments: Comment[]
 }
 
-export interface Comment {
-  id: number
-  text: string
+export interface Comment extends IComment {
   author: User
-  createdAt: Date
-  subcomments: Comment[] // Nested comments
-  likedBy: string[]
+  subcomments: Comment[]
+  likeCount: number
+  isLiked: boolean
 }

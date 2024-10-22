@@ -15,9 +15,12 @@ import { Strike } from "@tiptap/extension-strike"
 import { Text } from "@tiptap/extension-text"
 import { Underline } from "@tiptap/extension-underline"
 import { Highlight } from "@tiptap/extension-highlight"
-import { type EditorContentProps, EditorContent, mergeAttributes, EditorProvider } from "@tiptap/react"
+import { type EditorContentProps, EditorContent, mergeAttributes } from "@tiptap/react"
+import { useEditor } from "@tiptap/react"
 import { forwardRef } from "react"
 import { cn } from "~/shared/lib"
+import { Skeleton } from "~/shared/ui-kit/skeleton"
+import { EditorContextProvider } from "~/shared/ui/Editor"
 import {
   BlockquoteClassname,
   BulletListClassname,
@@ -102,24 +105,32 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(function Editor(
   { editable = true, onUpdate, ...props },
   ref,
 ) {
+  const editor = useEditor({
+    extensions,
+    editable,
+    content: String(props.value),
+    onUpdate({ editor }) {
+      if (onUpdate) onUpdate(editor.getHTML())
+    },
+    editorProps: {
+      attributes: {
+        class: cn("outline-0 font-serif", editable && "min-h-[16rem] max-h-[37.5rem] overflow-auto p-2"),
+      },
+    },
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: false,
+  })
+
+  if (!editor) {
+    return <Skeleton className="h-[21.125rem] w-full rounded-md" />
+  }
+
   return (
-    <div ref={ref} className={cn(editable && "rounded-md border border-input bg-white shadow-sm")}>
-      <EditorProvider
-        editable={editable}
-        {...(editable ? { slotBefore: <Toolbar /> } : {})}
-        content={String(props.value)}
-        extensions={extensions}
-        immediatelyRender={false}
-        editorProps={{
-          attributes: {
-            class: cn("outline-0 font-serif", editable && "min-h-[16rem] max-h-[37.5rem] overflow-auto p-2"),
-          },
-        }}
-        onUpdate={(updated) => {
-          if (onUpdate) onUpdate(updated.editor.getHTML())
-        }}>
-        <EditorContent editor={null} {...props} />
-      </EditorProvider>
-    </div>
+    <EditorContextProvider value={editor}>
+      <div ref={ref} className={cn(editable && "rounded-md border border-input bg-white shadow-sm")}>
+        {editable ? <Toolbar /> : null}
+        <EditorContent editor={editor} {...props} />
+      </div>
+    </EditorContextProvider>
   )
 })

@@ -1,5 +1,5 @@
 import { getServerSession } from "next-auth"
-import { toast } from "sonner"
+import { notFound } from "next/navigation"
 import { authOptions } from "~/app/api/auth/[...nextauth]/route"
 import prisma from "~/prisma"
 import { editPost } from "~/server-actions/post"
@@ -8,13 +8,13 @@ import PostForm from "~/shared/ui/PostForm"
 export default async function EditPost({ params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions)
 
-  console.log(session)
-
   const post = await prisma.post.findUnique({
     where: { id: params.id },
   })
 
-  if (!post || post.authorId !== session?.user.id) throw new Error("Not found")
+  if (!post || post.authorId !== session?.user.id) {
+    notFound()
+  }
 
   return (
     <PostForm

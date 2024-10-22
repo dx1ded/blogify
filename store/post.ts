@@ -18,10 +18,12 @@ type Action = {
 const initialState: State = {
   post: {
     id: "",
+    slug: "",
     title: "",
     content: "",
     tags: [],
     thumbnailUrl: "",
+    createdAt: new Date(),
     author: {
       id: "",
       name: "",

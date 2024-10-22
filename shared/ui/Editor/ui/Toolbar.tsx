@@ -1,6 +1,5 @@
 "use client"
 
-import { useCurrentEditor } from "@tiptap/react"
 import {
   BoldIcon,
   HighlighterIcon,
@@ -13,12 +12,13 @@ import {
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/shared/ui-kit/select"
 import { Separator } from "~/shared/ui-kit/separator"
+import { useEditorContext } from "~/shared/ui/Editor"
 import { ToolbarButton } from "./ToolbarButton"
 import { LinkButton } from "./LinkButton"
 import { ImageButton } from "./ImageButton"
 
 export function Toolbar() {
-  const { editor } = useCurrentEditor()
+  const editor = useEditorContext()
 
   const selectValueChangeHandler = (value: string) => {
     if (value === "paragraph") {
@@ -33,6 +33,8 @@ export function Toolbar() {
       editor?.chain().focus().setHeading({ level: 4 }).run()
     }
   }
+
+  if (!editor) return null
 
   return (
     <div className="flex flex-wrap items-center gap-2 border-b border-input bg-transparent px-2 py-1.5">

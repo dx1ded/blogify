@@ -4,6 +4,7 @@ import { EllipsisVerticalIcon } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { startTransition } from "react"
 import { toast } from "sonner"
 import { removePost } from "~/server-actions/post"
 import {
@@ -21,19 +22,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Author } from "~/shared/ui/Author"
 import { Tag } from "~/shared/ui/Tag"
 import { H4 } from "~/shared/ui/Typography"
-import { normalizeTimestamp } from "~/shared/lib"
+import { normalizeTimestamp, type Post } from "~/shared/lib"
 
-interface PostCardProps {
-  id: string
-  slug: string
-  title: string
-  tag: string
-  thumbnailUrl: string
-  createdAt: Date
-  author: {
-    name: string
-    image: string
-  }
+interface PostCardProps extends Omit<Post, "likedBy" | "comments"> {
+  onRemove?: (postId: string) => void
+  removeOptimistic?: (postId: string) => void
   withControls?: boolean
 }
 
@@ -41,17 +34,21 @@ export function PostCard({
   id,
   slug,
   title,
-  tag,
+  tags,
   thumbnailUrl,
   createdAt,
   author,
+  onRemove,
+  removeOptimistic,
   withControls = false,
 }: PostCardProps) {
   const router = useRouter()
 
   const remove = async () => {
     try {
+      if (removeOptimistic) removeOptimistic(id)
       await removePost(id)
+      if (onRemove) onRemove(id)
       toast.success("Post has been successfully removed", { position: "top-right" })
     } catch (e) {
       toast.error((e as Error).message, { position: "top-right" })
@@ -68,7 +65,7 @@ export function PostCard({
         height={200}
       />
       <div className="mb-2 flex items-center justify-between">
-        <Tag name={tag} variant="secondary" className="inline-block rounded-lg" />
+        <Tag name={tags[0]} variant="secondary" className="inline-block rounded-lg" />
         {withControls ? (
           <AlertDialog>
             <DropdownMenu>
@@ -96,7 +93,7 @@ export function PostCard({
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={remove}>Delete</AlertDialogAction>
+                <AlertDialogAction onClick={() => startTransition(remove)}>Delete</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

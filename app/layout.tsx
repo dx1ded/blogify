@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import { Work_Sans as WorkSans, Source_Serif_4 as SourceSerif4, Inter } from "next/font/google"
+import { QueryProvider } from "~/providers/QueryProvider"
 import SessionProvider from "~/providers/SessionProvider"
 import { cn } from "~/shared/lib"
 import { Toaster } from "~/shared/ui-kit/sonner"
@@ -23,11 +24,13 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-      <body className={cn("antialiased", workSans.variable, sourceSerif4.variable, inter.variable)}>
-        <SessionProvider>{children}</SessionProvider>
-        <Toaster />
-      </body>
-    </html>
+    <QueryProvider>
+      <html lang="en">
+        <body className={cn("antialiased", workSans.variable, sourceSerif4.variable, inter.variable)}>
+          <SessionProvider>{children}</SessionProvider>
+          <Toaster />
+        </body>
+      </html>
+    </QueryProvider>
   )
 }

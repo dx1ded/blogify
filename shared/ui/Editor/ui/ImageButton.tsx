@@ -1,11 +1,11 @@
-import { useCurrentEditor } from "@tiptap/react"
 import { ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import { cn, fileToDataURL, mb } from "~/shared/lib"
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/shared/ui-kit/tooltip"
+import { useEditorContext } from "~/shared/ui/Editor"
 
 export function ImageButton() {
-  const { editor } = useCurrentEditor()
+  const editor = useEditorContext()
 
   const isActive = Boolean(editor?.isActive("image"))
 

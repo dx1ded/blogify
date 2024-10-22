@@ -1,6 +1,7 @@
 -- getRecursiveComments.sql
 
 -- @param {String} $1:postId
+-- @param {String} $2:userId
 WITH RECURSIVE comment_tree AS (
     SELECT
         id,
@@ -30,14 +31,19 @@ SELECT
     ct.*,
     u.name AS "authorName",
     u.image AS "authorImage",
-    ARRAY_AGG(DISTINCT lu.id) FILTER (WHERE lu.id IS NOT NULL) AS "likedByUserIds"
+    COUNT(DISTINCT lu.id)::int AS "likeCount",
+    CASE WHEN $2::text IS NOT NULL AND EXISTS (
+        SELECT 1
+        FROM "_CommentLikes" cl
+        WHERE cl."A" = ct.id AND cl."B"::text = $2::text
+    ) THEN true ELSE false END AS "isLiked"
 FROM
     comment_tree ct
-        LEFT JOIN
+    LEFT JOIN
     "User" u ON ct."authorId" = u.id
-        LEFT JOIN
+    LEFT JOIN
     "_CommentLikes" cl ON ct.id = cl."A"
-        LEFT JOIN
+    LEFT JOIN
     "User" lu ON cl."B" = lu.id
 GROUP BY
     ct.id, ct."authorId", ct."postId", ct."parentCommentId", ct.text, ct."createdAt",

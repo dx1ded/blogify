@@ -1,28 +1,31 @@
+"use client"
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { SendIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
+import Link from "next/link"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { toast } from "sonner"
 import type { z } from "zod"
 import { commentSchema } from "~/schemas/comment-schema"
 import { createComment } from "~/server-actions/comment"
-import { cn } from "~/shared/lib"
+import { cn, type Comment } from "~/shared/lib"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/shared/ui-kit/form"
-import { usePostStore } from "~/store/post"
+import { Skeleton } from "~/shared/ui-kit/skeleton"
 
 interface NewCommentProps {
   size?: "md" | "lg"
   className?: string
   parentCommentId?: number
   postHandler?: () => void
+  postId: string
+  onAdd?: (comment: Comment) => void
 }
 
 const newCommentSchema = commentSchema.pick({ text: true })
 
-export function NewComment({ className, parentCommentId, postHandler, size = "lg" }: NewCommentProps) {
-  const postId = usePostStore((state) => state.post.id)
-  const addComment = usePostStore((state) => state.addComment)
-  const { data } = useSession()
+export function NewComment({ postId, className, parentCommentId, postHandler, onAdd, size = "lg" }: NewCommentProps) {
+  const { data, status } = useSession()
   const form = useForm<z.output<typeof newCommentSchema>>({
     resolver: zodResolver(newCommentSchema),
     defaultValues: {
@@ -31,11 +34,9 @@ export function NewComment({ className, parentCommentId, postHandler, size = "lg
   })
 
   const submitHandler: SubmitHandler<z.output<typeof newCommentSchema>> = async ({ text }) => {
-    try {
-      if (!data?.user.id) {
-        throw new Error("User ID is not defined")
-      }
+    if (!data?.user.id) return
 
+    try {
       const comment = await createComment({
         text,
         postId,
@@ -43,16 +44,20 @@ export function NewComment({ className, parentCommentId, postHandler, size = "lg
         parentCommentId,
       })
 
-      addComment({ ...comment, likedBy: comment.likedBy.map((user) => user.id), subcomments: [] })
+      if (!comment) return
 
+      if (onAdd) onAdd({ ...comment, likeCount: 0, isLiked: false, subcomments: [] })
       if (postHandler) postHandler()
-      form.setValue("text", "")
+
+      form.reset()
     } catch (e) {
       toast.error((e as Error).message, { position: "top-right" })
     }
   }
 
-  return (
+  if (status === "loading") return <Skeleton className="h-20 w-full" />
+
+  return data?.user ? (
     <Form {...form}>
       <form
         className={cn("flex gap-2", size === "md" ? "items-center" : "items-end", className)}
@@ -89,5 +94,9 @@ export function NewComment({ className, parentCommentId, postHandler, size = "lg
         </button>
       </form>
     </Form>
+  ) : (
+    <Link href="/login" className="inline-block font-medium text-blue-400">
+      Login to comment
+    </Link>
   )
 }

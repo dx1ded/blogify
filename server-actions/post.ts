@@ -5,11 +5,12 @@ import { nanoid } from "nanoid"
 import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import slugify from "slugify"
 import type { z } from "zod"
 import { authOptions } from "~/app/api/auth/[...nextauth]/route"
 import prisma from "~/prisma"
 import { postSchema } from "~/schemas/post-schema"
-import { mb, sluggify } from "~/shared/lib"
+import { mb } from "~/shared/lib"
 
 export async function createPost(formData: FormData) {
   const data = Object.fromEntries(formData.entries()) as unknown as z.output<typeof postSchema>
@@ -43,18 +44,17 @@ export async function createPost(formData: FormData) {
       id,
       authorId: session.user.id,
       thumbnailUrl: blob.downloadUrl,
-      slug: sluggify(data.title),
+      slug: slugify(data.title),
     },
   })
 
-  revalidatePath("/profile")
   redirect(`/post/${post.slug}`)
 }
 
-export async function togglePostLike(postId: string) {
+export async function likePost(postId: string, value: boolean) {
   const session = await getServerSession(authOptions)
 
-  if (!postId || !session?.user.id) {
+  if (!postId || typeof value === "undefined" || !session?.user.id) {
     throw new Error("Provided data is not valid")
   }
 
@@ -69,27 +69,14 @@ export async function togglePostLike(postId: string) {
     throw new Error("Post not found")
   }
 
-  const isLiked = post.likedBy.some((user) => user.id === session?.user.id)
-
-  if (isLiked) {
-    await prisma.post.update({
-      where: { id: postId },
-      data: {
-        likedBy: {
-          disconnect: { id: session.user.id },
-        },
+  await prisma.post.update({
+    where: { id: postId },
+    data: {
+      likedBy: {
+        ...(value ? { connect: { id: session.user.id } } : { disconnect: { id: session.user.id } }),
       },
-    })
-  } else {
-    await prisma.post.update({
-      where: { id: postId },
-      data: {
-        likedBy: {
-          connect: { id: session.user.id },
-        },
-      },
-    })
-  }
+    },
+  })
 
   revalidatePath(`/post/${post.slug}`)
 }
@@ -132,17 +119,21 @@ export async function editPost(formData: FormData, postId: string) {
     access: "public",
   })
 
-  await prisma.post.update({
+  const updatedPost = await prisma.post.update({
     where: { id: postId },
     data: {
       ...postData,
       thumbnailUrl: blob.downloadUrl,
+      slug: slugify(postData.title),
     },
   })
 
-  revalidatePath(`/post/${post.slug}`)
-  revalidatePath(`/post/edit/${post.id}`)
-  revalidatePath("/profile")
+  // Deleting previous slug path if it got changed
+  if (post.slug !== updatedPost.slug) {
+    revalidatePath(`/post/${post.slug}`)
+  }
+
+  revalidatePath(`/post/${updatedPost.slug}`)
 }
 
 export async function removePost(postId: string) {
@@ -168,5 +159,5 @@ export async function removePost(postId: string) {
     where: { id: postId },
   })
 
-  revalidatePath("/profile")
+  revalidatePath(`/post/${post.slug}`)
 }

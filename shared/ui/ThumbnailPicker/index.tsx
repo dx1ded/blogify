@@ -42,6 +42,7 @@ export const ThumbnailPicker = forwardRef<HTMLInputElement, ThumbnailPickerProps
           alt="Thumbnail"
           width={384}
           height={384}
+          priority
         />
       )}
       <label

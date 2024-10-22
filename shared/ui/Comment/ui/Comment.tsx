@@ -3,56 +3,73 @@
 import { EllipsisVerticalIcon, ThumbsUpIcon } from "lucide-react"
 import { useSession } from "next-auth/react"
 import Image from "next/image"
-import { useState } from "react"
+import { memo, startTransition, useOptimistic, useState } from "react"
 import { toast } from "sonner"
-import { toggleCommentLike, removeComment } from "~/server-actions/comment"
+import { removeComment, likeComment } from "~/server-actions/comment"
 import { cn, type Comment as IComment, normalizeCommentDate } from "~/shared/lib"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/shared/ui-kit/dropdown-menu"
 import { NewComment } from "~/shared/ui/NewComment"
 import { Text } from "~/shared/ui/Typography"
-import { usePostStore } from "~/store/post"
 
-export function Comment({ id, text, author, createdAt, likedBy, subcomments }: IComment) {
+interface CommentProps extends IComment {
+  onAdd?: (comment: IComment) => void
+  onRemove?: (commentId: number) => void
+  onLike?: (commentId: number, value: boolean) => void
+  removeOptimisticComment?: (commentId: number) => void
+}
+
+export const Comment = memo<CommentProps>(function Comment({
+  id,
+  postId,
+  text,
+  author,
+  createdAt,
+  subcomments,
+  likeCount,
+  isLiked,
+  onAdd,
+  onRemove,
+  onLike,
+  removeOptimisticComment,
+}) {
   const { data } = useSession()
-  const stateToggleCommentLike = usePostStore((state) => state.toggleCommentLike)
-  const stateRemoveComment = usePostStore((state) => state.removeComment)
-  const [replyOpen, setReplyOpen] = useState(false)
+  const [likeState, setLikeState] = useOptimistic({ isLiked, likeCount }, (state, value: boolean) => ({
+    isLiked: value,
+    likeCount: state.likeCount + (value ? 1 : -1),
+  }))
   const [likeDisabled, setLikeDisabled] = useState(false)
-  const [removeDisabled, setRemovedDisabled] = useState(false)
+  const [removeDisabled, setRemoveDisabled] = useState(false)
+  const [replyOpen, setReplyOpen] = useState(false)
 
   const like = async () => {
-    if (!data?.user.id) return
-
     setLikeDisabled(true)
 
     try {
-      // Optimistic approach
-      stateToggleCommentLike(id, data.user.id)
-      await toggleCommentLike(id)
+      setLikeState(!isLiked)
+      await likeComment(id, !isLiked)
+      if (onLike) onLike(id, !isLiked)
     } catch (e) {
       toast.error((e as Error).message, { position: "top-right" })
-      // Toggling it back if there was an error
-      stateToggleCommentLike(id, data.user.id)
     } finally {
       setLikeDisabled(false)
     }
   }
 
   const remove = async () => {
-    setRemovedDisabled(true)
+    setRemoveDisabled(true)
 
     try {
+      if (removeOptimisticComment) removeOptimisticComment(id)
       await removeComment(id)
-      stateRemoveComment(id)
+      if (onRemove) onRemove(id)
     } catch (e) {
       toast.error((e as Error).message, { position: "top-right" })
     } finally {
-      setRemovedDisabled(false)
+      setRemoveDisabled(false)
     }
   }
 
   const isCreator = author.id === data?.user.id
-  const isLiked = likedBy.some((userId) => userId === data?.user.id)
 
   return (
     <div className="grid gap-4 md:gap-6">
@@ -64,7 +81,7 @@ export function Comment({ id, text, author, createdAt, likedBy, subcomments }: I
           width={32}
           height={32}
         />
-        <div className="w-full">
+        <div className="flex-1">
           <div className="mb-1 flex items-center">
             <div className="flex flex-1 items-center gap-2 sm:gap-3 md:gap-4">
               <Text className="truncate font-semibold">{author.name}</Text>
@@ -81,7 +98,7 @@ export function Comment({ id, text, author, createdAt, likedBy, subcomments }: I
                   <DropdownMenuItem
                     className="font-medium text-red-400 focus:text-red-400"
                     disabled={removeDisabled}
-                    onClick={remove}>
+                    onClick={() => startTransition(remove)}>
                     Remove
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -94,9 +111,9 @@ export function Comment({ id, text, author, createdAt, likedBy, subcomments }: I
               type="button"
               className="flex items-center gap-2 text-sm font-semibold"
               disabled={likeDisabled || !data?.user}
-              onClick={like}>
-              <ThumbsUpIcon className={cn("h-4 w-4", isLiked && "fill-blue-500")} />
-              {likedBy.length}
+              onClick={() => startTransition(like)}>
+              <ThumbsUpIcon className={cn("h-4 w-4", likeState.isLiked && "fill-blue-500")} />
+              {likeState.likeCount}
             </button>
             <button
               type="button"
@@ -108,14 +125,29 @@ export function Comment({ id, text, author, createdAt, likedBy, subcomments }: I
           </div>
         </div>
       </div>
-      {replyOpen ? <NewComment size="md" parentCommentId={id} postHandler={() => setReplyOpen(false)} /> : null}
+      {replyOpen ? (
+        <NewComment
+          size="md"
+          postId={postId}
+          parentCommentId={id}
+          onAdd={onAdd}
+          postHandler={() => setReplyOpen(false)}
+        />
+      ) : null}
       {subcomments.length ? (
         <div className="grid gap-4 border-l pl-4 md:gap-6 md:pl-6 lg:pl-8">
           {subcomments.map((comment) => (
-            <Comment key={comment.id} {...comment} />
+            <Comment
+              key={comment.id}
+              {...comment}
+              onAdd={onAdd}
+              onRemove={onRemove}
+              onLike={onLike}
+              removeOptimisticComment={removeOptimisticComment}
+            />
           ))}
         </div>
       ) : null}
     </div>
   )
-}
+})

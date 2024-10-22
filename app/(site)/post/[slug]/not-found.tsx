@@ -2,6 +2,6 @@
 
 import { NotFound } from "~/shared/ui/NotFound"
 
-export default function Error() {
+export default function PostNotFound() {
   return <NotFound />
 }

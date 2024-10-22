@@ -81,56 +81,56 @@ export default function Home() {
       <section>
         <Search />
         <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-8 lg:grid-cols-3 xl:grid-cols-4">
-          <PostCard
-            title="The Impact of Technology on the Workplace: How Technology is Changing"
-            tag="Technology"
-            thumbnailUrl="/post-image.png"
-            date={Date.now()}
-            author={{
-              name: "Tracey Wilson",
-              imageUrl: "/logo.svg",
-            }}
-          />
-          <PostCard
-            title="The Impact of Technology on the Workplace: How Technology is Changing"
-            tag="Technology"
-            thumbnailUrl="/post-image.png"
-            date={Date.now()}
-            author={{
-              name: "Tracey Wilson",
-              imageUrl: "/logo.svg",
-            }}
-          />
-          <PostCard
-            title="The Impact of Technology on the Workplace: How Technology is Changing"
-            tag="Technology"
-            thumbnailUrl="/post-image.png"
-            date={Date.now()}
-            author={{
-              name: "Tracey Wilson",
-              imageUrl: "/logo.svg",
-            }}
-          />
-          <PostCard
-            title="The Impact of Technology on the Workplace: How Technology is Changing"
-            tag="Technology"
-            thumbnailUrl="/post-image.png"
-            date={Date.now()}
-            author={{
-              name: "Tracey Wilson",
-              imageUrl: "/logo.svg",
-            }}
-          />
-          <PostCard
-            title="The Impact of Technology on the Workplace: How Technology is Changing"
-            tag="Technology"
-            thumbnailUrl="/post-image.png"
-            date={Date.now()}
-            author={{
-              name: "Tracey Wilson",
-              imageUrl: "/logo.svg",
-            }}
-          />
+          {/*<PostCard*/}
+          {/*  title="The Impact of Technology on the Workplace: How Technology is Changing"*/}
+          {/*  tag="Technology"*/}
+          {/*  thumbnailUrl="/post-image.png"*/}
+          {/*  date={Date.now()}*/}
+          {/*  author={{*/}
+          {/*    name: "Tracey Wilson",*/}
+          {/*    imageUrl: "/logo.svg",*/}
+          {/*  }}*/}
+          {/*/>*/}
+          {/*<PostCard*/}
+          {/*  title="The Impact of Technology on the Workplace: How Technology is Changing"*/}
+          {/*  tag="Technology"*/}
+          {/*  thumbnailUrl="/post-image.png"*/}
+          {/*  date={Date.now()}*/}
+          {/*  author={{*/}
+          {/*    name: "Tracey Wilson",*/}
+          {/*    imageUrl: "/logo.svg",*/}
+          {/*  }}*/}
+          {/*/>*/}
+          {/*<PostCard*/}
+          {/*  title="The Impact of Technology on the Workplace: How Technology is Changing"*/}
+          {/*  tag="Technology"*/}
+          {/*  thumbnailUrl="/post-image.png"*/}
+          {/*  date={Date.now()}*/}
+          {/*  author={{*/}
+          {/*    name: "Tracey Wilson",*/}
+          {/*    imageUrl: "/logo.svg",*/}
+          {/*  }}*/}
+          {/*/>*/}
+          {/*<PostCard*/}
+          {/*  title="The Impact of Technology on the Workplace: How Technology is Changing"*/}
+          {/*  tag="Technology"*/}
+          {/*  thumbnailUrl="/post-image.png"*/}
+          {/*  date={Date.now()}*/}
+          {/*  author={{*/}
+          {/*    name: "Tracey Wilson",*/}
+          {/*    imageUrl: "/logo.svg",*/}
+          {/*  }}*/}
+          {/*/>*/}
+          {/*<PostCard*/}
+          {/*  title="The Impact of Technology on the Workplace: How Technology is Changing"*/}
+          {/*  tag="Technology"*/}
+          {/*  thumbnailUrl="/post-image.png"*/}
+          {/*  date={Date.now()}*/}
+          {/*  author={{*/}
+          {/*    name: "Tracey Wilson",*/}
+          {/*    imageUrl: "/logo.svg",*/}
+          {/*  }}*/}
+          {/*/>*/}
         </div>
       </section>
     </div>

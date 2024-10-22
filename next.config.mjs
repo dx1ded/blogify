@@ -7,7 +7,12 @@ const nextConfig = {
         hostname: "*"
       }
     ]
-  }
+  },
+  experimental: {
+    staleTimes: {
+      dynamic: 0,
+    },
+  },
 };
 
 export default nextConfig

@@ -37,10 +37,6 @@ export const normalizeCommentDate = (date: Date) => {
   return dayjsDate.format("MM/DD/YYYY h:mm A") // e.g., "11/03/2022 11:38 PM"
 }
 
-export const sluggify = (str: string) => {
-  return str.toLowerCase().split(" ").join("-")
-}
-
 export const mb = (mbs: number) => {
   return mbs * 1024 * 1024
 }
