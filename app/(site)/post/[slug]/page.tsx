@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import { getServerSession } from "next-auth"
 import { notFound } from "next/navigation"
 import { Suspense } from "react"
@@ -28,6 +29,19 @@ export async function generateStaticParams() {
   })
 
   return posts.map((post) => post.slug)
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const post = await prisma.post.findFirst({
+    where: { slug: params?.slug },
+    select: { title: true },
+  })
+
+  if (!post) {
+    return { title: "Not found" }
+  }
+
+  return { title: post.title }
 }
 
 // Revalidate every hour

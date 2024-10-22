@@ -1,9 +1,14 @@
+import type { Metadata } from "next"
 import { getServerSession } from "next-auth"
 import Image from "next/image"
 import { Suspense } from "react"
 import { authOptions } from "~/app/api/auth/[...nextauth]/route"
 import { PostList, PostListSkeleton } from "~/shared/ui/PostList"
 import { H2 } from "~/shared/ui/Typography"
+
+export const metadata: Metadata = {
+  title: "Profile",
+}
 
 export default async function Profile() {
   const session = await getServerSession(authOptions)

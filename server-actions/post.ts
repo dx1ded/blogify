@@ -161,3 +161,39 @@ export async function removePost(postId: string) {
 
   revalidatePath(`/post/${post.slug}`)
 }
+
+export async function fetchPosts({ search, page = 1 }: { search?: string | null; page?: number }) {
+  return prisma.post.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+    select: {
+      id: true,
+      slug: true,
+      title: true,
+      content: true,
+      tags: true,
+      thumbnailUrl: true,
+      createdAt: true,
+      author: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+    },
+    skip: (page - 1) * 8,
+    take: page * 8,
+    ...(search
+      ? {
+          where: {
+            title: {
+              startsWith: search,
+              mode: "insensitive",
+            },
+          },
+        }
+      : {}),
+  })
+}
