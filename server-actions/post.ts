@@ -5,12 +5,11 @@ import { nanoid } from "nanoid"
 import { getServerSession } from "next-auth"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
-import slugify from "slugify"
 import type { z } from "zod"
 import { authOptions } from "~/app/api/auth/[...nextauth]/route"
 import prisma from "~/prisma"
 import { postSchema } from "~/schemas/post-schema"
-import { mb } from "~/shared/lib"
+import { generateSlug, mb } from "~/shared/lib"
 
 export async function createPost(formData: FormData) {
   const data = Object.fromEntries(formData.entries()) as unknown as z.output<typeof postSchema>
@@ -44,7 +43,7 @@ export async function createPost(formData: FormData) {
       id,
       authorId: session.user.id,
       thumbnailUrl: blob.downloadUrl,
-      slug: slugify(data.title),
+      slug: generateSlug(data.title),
     },
   })
 
@@ -119,12 +118,14 @@ export async function editPost(formData: FormData, postId: string) {
     access: "public",
   })
 
+  const updatedSlug = post.title !== postData.title ? generateSlug(postData.title) : post.slug
+
   const updatedPost = await prisma.post.update({
     where: { id: postId },
     data: {
       ...postData,
       thumbnailUrl: blob.downloadUrl,
-      slug: slugify(postData.title),
+      slug: updatedSlug,
     },
   })
 

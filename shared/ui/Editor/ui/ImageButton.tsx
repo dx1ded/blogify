@@ -2,7 +2,7 @@ import { ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import { cn, fileToDataURL, mb } from "~/shared/lib"
 import { Tooltip, TooltipContent, TooltipTrigger } from "~/shared/ui-kit/tooltip"
-import { useEditorContext } from "~/shared/ui/Editor"
+import { useEditorContext } from "../model/context"
 
 export function ImageButton() {
   const editor = useEditorContext()

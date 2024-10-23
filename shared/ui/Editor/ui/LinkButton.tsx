@@ -14,7 +14,7 @@ import {
 } from "~/shared/ui-kit/dialog"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "~/shared/ui-kit/form"
 import { Input } from "~/shared/ui-kit/input"
-import { useEditorContext } from "~/shared/ui/Editor"
+import { useEditorContext } from "../model/context"
 import { ToolbarButton } from "./ToolbarButton"
 
 const linkSchema = z.object({

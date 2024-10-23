@@ -1,9 +1,11 @@
 import { type ClassValue, clsx } from "clsx"
 import dayjs from "dayjs"
+import { nanoid } from "nanoid"
 import isToday from "dayjs/plugin/isToday"
 import isYesterday from "dayjs/plugin/isYesterday"
 import localizedFormat from "dayjs/plugin/localizedFormat"
 import relativeTime from "dayjs/plugin/relativeTime"
+import slugify from "slugify"
 import { twMerge } from "tailwind-merge"
 
 // Add the plugins you need
@@ -69,4 +71,15 @@ export async function urlToFile(url: string) {
 
   // Create a File object from the Blob with mimeType set to 'image/png'
   return new File([blob], "file.png", { type: "image/png" })
+}
+
+export const generateSlug = (slug: string) => `${slugify(slug)}-${nanoid(5)}`
+
+export function handleEnter(cb: () => unknown) {
+  return (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault()
+      cb()
+    }
+  }
 }

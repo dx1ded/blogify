@@ -12,7 +12,7 @@ import {
 } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "~/shared/ui-kit/select"
 import { Separator } from "~/shared/ui-kit/separator"
-import { useEditorContext } from "~/shared/ui/Editor"
+import { useEditorContext } from "../model/context"
 import { ToolbarButton } from "./ToolbarButton"
 import { LinkButton } from "./LinkButton"
 import { ImageButton } from "./ImageButton"

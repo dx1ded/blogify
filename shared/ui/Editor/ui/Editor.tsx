@@ -20,7 +20,6 @@ import { useEditor } from "@tiptap/react"
 import { forwardRef } from "react"
 import { cn } from "~/shared/lib"
 import { Skeleton } from "~/shared/ui-kit/skeleton"
-import { EditorContextProvider } from "~/shared/ui/Editor"
 import {
   BlockquoteClassname,
   BulletListClassname,
@@ -31,6 +30,8 @@ import {
   OrderedListClassname,
   TextClassname,
 } from "~/shared/ui/Typography"
+import { EditorContextProvider } from "../model/context"
+import { AIBubbleMenu } from "./AIBubbleMenu"
 import { Toolbar } from "./Toolbar"
 
 const extensions = [
@@ -129,6 +130,7 @@ export const Editor = forwardRef<HTMLDivElement, EditorProps>(function Editor(
     <EditorContextProvider value={editor}>
       <div ref={ref} className={cn(editable && "rounded-md border border-input bg-white shadow-sm")}>
         {editable ? <Toolbar /> : null}
+        {editable ? <AIBubbleMenu /> : null}
         <EditorContent editor={editor} {...props} />
       </div>
     </EditorContextProvider>
