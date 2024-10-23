@@ -114,7 +114,7 @@ export function AIBubbleMenu() {
                           {message.content}
                         </p>
                       </div>
-                      {message.role === "assistant" && (
+                      {message.role === "assistant" && !isLoading && (
                         <Button
                           className="self-end"
                           variant="outline"
