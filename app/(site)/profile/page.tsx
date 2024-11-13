@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import { getServerSession } from "next-auth"
 import Image from "next/image"
 import { Suspense } from "react"
-import { authOptions } from "~/app/api/auth/[...nextauth]/route"
+import { authOptions } from "~/providers/auth"
 import { PostList, PostListSkeleton } from "~/shared/ui/PostList"
 import { H2 } from "~/shared/ui/Typography"
 

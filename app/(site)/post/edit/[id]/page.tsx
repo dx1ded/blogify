@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import { getServerSession } from "next-auth"
 import { notFound } from "next/navigation"
-import { authOptions } from "~/app/api/auth/[...nextauth]/route"
+import { authOptions } from "~/providers/auth"
 import prisma from "~/prisma"
 import { editPost } from "~/server-actions/post"
 import PostForm from "~/shared/ui/PostForm"

@@ -2,7 +2,7 @@
 
 import { getServerSession } from "next-auth"
 import { z } from "zod"
-import { authOptions } from "~/app/api/auth/[...nextauth]/route"
+import { authOptions } from "~/providers/auth"
 import prisma from "~/prisma"
 import { commentSchema } from "~/schemas/comment-schema"
 
