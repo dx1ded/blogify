@@ -1,6 +1,6 @@
 "use server"
 
-import bcrypt from "bcrypt"
+import bcrypt from "bcryptjs"
 import type { z } from "zod"
 import prisma from "~/prisma"
 import { registerSchema } from "~/schemas/auth-schema"
