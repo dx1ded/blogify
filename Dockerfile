@@ -23,10 +23,13 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-# Mount secrets provided from ci-cd.yml + build
-RUN --mount=type=secret,id=env_file,dst=/app/.env.secret \
-    cp /app/.env.secret /app/.env && \
-    npm run build
+# Mount secrets provided from ci-cd.yml
+RUN --mount=type=secret,id=env_file \
+    if [ -f /run/secrets/env_file ]; then \
+      cat /run/secrets/env_file > .env; \
+    fi
+
+RUN npm run build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
