@@ -21,7 +21,7 @@ COPY . .
 # Mount secrets provided from ci-cd.yml
 RUN --mount=type=secret,id=env_file \
     if [ -f /run/secrets/env_file ]; then \
-      cat /run/secrets/env_file > apps/client/.env; \
+      cat /run/secrets/env_file > .env; \
     fi
 
 RUN npm run build
