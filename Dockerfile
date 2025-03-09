@@ -1,12 +1,19 @@
-FROM node:22-alpine AS deps
+# syntax=docker.io/docker/dockerfile:1
+
+FROM node:22-alpine AS base
+
+# Install dependencies only when needed
+FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Install dependencies based on the preferred package manager
 COPY package*.json ./
 RUN npm install
 
-FROM node:22-alpine AS builder
+# Rebuild the source code only when needed
+FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -16,13 +23,10 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-# Mount secrets provided from ci-cd.yml
-RUN --mount=type=secret,id=env_file \
-    if [ -f /run/secrets/env_file ]; then \
-      cat /run/secrets/env_file > .env; \
-    fi
-
-RUN npm run build
+# Mount secrets provided from ci-cd.yml + build
+RUN --mount=type=secret,id=env_file,dst=/app/.env.secret \
+    cp /app/.env.secret /app/.env && \
+    npm run build
 
 FROM node:22-alpine AS runner
 WORKDIR /app
